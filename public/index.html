@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalMind AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app {
+      width: 90%;
+      max-width: 800px;
+      height: 85vh;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 5px 30px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 20px;
+      background: #222;
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    #chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .message {
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      max-width: 80%;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      background: #e8e8e8;
+      margin-left: auto;
+    }
+
+    .assistant {
+      background: #f1f1f1;
+      margin-right: auto;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      border-top: 1px solid #ddd;
+    }
+
+    #question {
+      flex: 1;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      padding: 14px 22px;
+      border: none;
+      border-radius: 10px;
+      background: #222;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #444;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <div class="header">
+      🤖 LocalMind AI
+    </div>
+
+    <div id="chat">
+      <div class="message assistant">
+        Hello! I'm your local AI. Ask me anything.
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input
+        id="question"
+        type="text"
+        placeholder="Type your question..."
+        onkeydown="if(event.key === 'Enter') askAI()"
+      >
+
+      <button onclick="askAI()">Send</button>
+    </div>
+
+  </div>
+
+  <script>
+    async function askAI() {
+      const input = document.getElementById("question");
+      const chat = document.getElementById("chat");
+      const question = input.value.trim();
+
+      if (!question) return;
+
+      const userMessage = document.createElement("div");
+      userMessage.className = "message user";
+      userMessage.textContent = question;
+      chat.appendChild(userMessage);
+
+      input.value = "";
+
+      const loading = document.createElement("div");
+      loading.className = "message assistant";
+      loading.textContent = "Thinking...";
+      chat.appendChild(loading);
+
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question: question
+          })
+        });
+
+        const data = await response.json();
+
+        loading.textContent =
+          data.answer || data.error || "No response";
+
+      } catch (error) {
+        console.error(error);
+        loading.textContent = "Error connecting to AI.";
+      }
+
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+
+</body>
+</html>

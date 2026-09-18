@@ -24,3 +24,4 @@ Clone the repository:
 ```bash
 git clone https://github.com/vijayvaghela29/localmind-ai.git
 cd localmind-ai
+
